@@ -10,8 +10,8 @@
 HardwareSerial softwareSerial(2);
 
 Servo servoDoor;
-Servo servoWhite;
-Servo servoColor;
+Servo servo_1;
+Servo servo_2;
 
 DFRobotDFPlayerMini player;
 int music = 1;
@@ -46,9 +46,11 @@ void setup() {
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
 
-  servoDoor.attach(14);  // Attach the servo to pin 2 on the ESP32
-  servoWhite.attach(26);  // Attach the servo to pin 2 on the ESP32
-  servoColor.attach(33);  // Attach the servo to pin 2 on the ESP32
+  servoDoor.attach(14);  
+  servo_1.attach(26);  
+  servo_2.attach(33);  
+
+  
 
 }
 
@@ -56,70 +58,30 @@ void loop() {
     getColorValue();
     colorDetected();
     checkDistance();
+
+    servo_1.write(COLOR_POS);
+    servo_2.write(COLOR_POS);
+    
 }
 
 void colorDetected() {
   if (colorValue < whiteColor) {
-    servoWhiteDoor(whiteState, 1);
+    servo_1.write(WHITE_POS);
+    servo_2.write(WHITE_POS);
     music=2;
   }
 
   else if (colorValue < LightColor) {
     Serial.println("DRESS = LIGHT COLOR");
-    servoColorDoor(whiteState, 1);
-    servoLightDoor(colorState, 1);
+    servo_1.write(COLOR_POS);
+    servo_2.write(COLOR_POS);
     music=3;    
   }
 
   else if (colorValue < DarkColor) {
     Serial.println("DRESS = DARK COLOR");
-    servoColorDoor(whiteState, 1);
-    servoDarkDoor(colorState, 1);
+    servo_1.write(BLACK_POS);
+    servo_2.write(BLACK_POS);
     music=4;
   }
-}
-
-void getColorValue() {
-  Red = getRed();
-  delay(100); /*wait a 200mS*/
-  Green = getGreen();
-  delay(200); /*wait a 200mS*/
-  Blue = getBlue();
-  delay(200); /*wait a 200mS*/
-  Serial.print("Red Freq = ");
-  Serial.print(Red); /*Print Red Color Value on Serial Monitor*/
-  Serial.print("   ");
-  Serial.print("Green Freq = ");
-  Serial.print(Green); /*Print Green Color Value on Serial Monitor*/
-  Serial.print("   ");
-  Serial.print("Blue Freq = ");
-  Serial.println(Blue); /*Print Blue Color Value on Serial Monitor*/
-  colorValue = calculateColor(Red, Green, Blue);
-  Serial.println("Color Value = " + String(colorValue));
-}
-
-int getRed() {
-  digitalWrite(S2, LOW);
-  digitalWrite(S3, LOW);
-  Frequency = pulseIn(sensorOut, LOW); /*Get the Red Color Frequency*/
-  return Frequency;
-}
-
-int getGreen() {
-  digitalWrite(S2, HIGH);
-  digitalWrite(S3, HIGH);
-  Frequency = pulseIn(sensorOut, LOW); /*Get the Green Color Frequency*/
-  return Frequency;
-}
-
-int getBlue() {
-  digitalWrite(S2, LOW);
-  digitalWrite(S3, HIGH);
-  Frequency = pulseIn(sensorOut, LOW); /*Get the Blue Color Frequency*/
-  return Frequency;
-}
-
-float calculateColor(float A, float B, float C) {
-  float result = sqrt(pow(A, 2) + pow(B, 2) + pow(C, 2));
-  return result;
 }
